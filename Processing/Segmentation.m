@@ -104,7 +104,7 @@ for i = 1:numel(sections)
     if trajSec.points(end,1) < trajSec.points(1,1)
         pcaTraj = RotateAxes(pcaTraj, 180, pcaTraj(:,3)); % Rotatin the axes
         trajSec  = select(traj, sections{i}.traj); % Original coordinates
-        trajSec.points = trajSec - meanTraj; % Coordinates centred
+        trajSec.points = trajSec.points - meanTraj; % Coordinates centred
         trajSec.points = trajSec.points * pcaTraj; % Coordinates in the new axes
     end
 

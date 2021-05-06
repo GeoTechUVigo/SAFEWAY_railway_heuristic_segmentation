@@ -1,5 +1,5 @@
 function [vectors] = RotateAxes(varargin)
-% Function to rotate column vector around the axi rotation Axis.
+% Function to rotate column vector around the axi rotationAxis.
 %
 %--------------------------------------------------------------------------
 % INPUTS:
@@ -36,9 +36,9 @@ degrees = parser.Results.degrees;
 rotationAxis = parser.Results.rotationAxis;   
 
 %% 
-rotationMatrix = makehgtform('axisrotate',rotationAxis,degrees*pi/180); % rotate 180 degrees in pca(3), that is the new z 4x4 matrix
-rotationMatrix = rotationMatrix(1:3,1:3); % 3x3 matrix
-vectors        = rotationMatrix * vectors;
+rotationMatrix = makehgtform('axisrotate',rotationAxis,degrees*pi/180); % tranform matrix 4x4. Rotation degrees in the axis rotationAxis
+rotationMatrix = rotationMatrix(1:3,1:3); % rotation matrix 3x3
+vectors        = rotationMatrix * vectors; % Rotation operation of column vectors
 
 end
 
