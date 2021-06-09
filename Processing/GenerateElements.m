@@ -37,7 +37,7 @@ model.light              = Element('dimensions', [0.7,0.8,NaN],'toleranceDimensi
 model.mastNoBracketModel = Element('dimensions', [1.2,0.75,10], 'eigenvectors', [0,NaN,NaN;0,NaN,NaN;1,NaN,NaN], 'eigenvalues', [0.85,NaN, NaN], 'toleranceDimensions', [1.2,0.75,4], 'toleranceEigenvectors', [20,NaN,NaN], 'toleranceEigenvalues', [0.15,NaN,NaN]); % antes 8+2 de alto en Y 0.75+0.75
 model.cableModel         = Element('dimensions', [NaN,0.3,NaN], 'eigenvectors', [NaN,NaN,NaN;NaN,NaN,NaN;NaN,NaN,NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,NaN,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]);
 model.dropperModel       = Element('dimensions', [NaN,1,NaN], 'eigenvectors', [0,NaN,NaN;0, NaN, NaN;1, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,1,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]);
-model.railModel          = Element('dimensions', [NaN,0.3,0.1], 'eigenvectors', [NaN,NaN,NaN;NaN, NaN, NaN;NaN, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,NaN,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]);
+model.railModel          = Element('dimensions', [NaN,0.6,0.1], 'eigenvectors', [NaN,NaN,NaN;NaN, NaN, NaN;NaN, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,NaN,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]); % 'dimensions', [NaN,0.3,0.1]
 model.railPairModel      = Element('dimensions', [NaN,1.74,0.3], 'eigenvectors', [NaN,NaN,NaN;NaN, NaN, NaN;NaN, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,0.02,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]);
 
 end

@@ -726,8 +726,8 @@ end
 %% Plotting in cloud
 
 if wantPlotCloud
-    figure; pcshow(vx.parent_cloud,'b');
-    hold on; pcshow(vx.parent_cloud(components.track,:),[0.5,0.5,1]);
+    figure; pcshow(vx.parent_cloud,[0.5,0.5,0.5]);
+%     hold on; pcshow(vx.parent_cloud(components.track,:),[0.5,0.5,1]);
     if ~isempty(components.masts)
         hold on; pcshow(vx.parent_cloud(cat(1,components.masts{:}),:), [0.6,0.6,0], 'MarkerSize', 50);
     end
@@ -760,7 +760,7 @@ if wantPlotCloud
     if ~isempty(components.droppers)
         aux = cat(2,components.droppers{:});
         aux = cat(2,aux{:});
-        hold on; pcshow(vx.parent_cloud(cat(1,aux{:}),:), 'w', 'MarkerSize', 50);
+        hold on; pcshow(vx.parent_cloud(cat(1,aux{:}),:), [0 0 0], 'MarkerSize', 50);
     end
     if ~isempty(components.signals.big)
         hold on; pcshow(vx.parent_cloud(cat(1,components.signals.big{:}),:), 'y', 'MarkerSize', 50);
@@ -777,6 +777,7 @@ if wantPlotCloud
     if ~isempty(components.signals.inMast)
         hold on; pcshow(vx.parent_cloud(cat(1,components.signals.inMast{:}),:), 'y', 'MarkerSize', 50);
     end
+    WhitePcshow()
 end
 
 %% Indexes in the original cloud, not in the input cloud

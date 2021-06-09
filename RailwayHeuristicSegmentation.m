@@ -62,8 +62,8 @@ addpath Classes Preprocessing Processing
 %% Paths
 pathInTrajectory = 'D:\Trabajo\Clouds\Chamartín-Ávila Ferrocarril\Trajectories';
 pathInCloud      = 'D:\Trabajo\Clouds\Chamartín-Ávila Ferrocarril\Originales';
-pathOut          = 'D:\Trabajo\Clouds\Chamartín-Ávila Ferrocarril\Procesados';
-pathOutStatus    = 'D:\Trabajo\Clouds\Chamartín-Ávila Ferrocarril\Status';
+pathOut          = 'D:\Trabajo\Clouds\Chamartín-Ávila Ferrocarril\Procesados_13_05_21';
+pathOutStatus    = 'D:\Trabajo\Clouds\Chamartín-Ávila Ferrocarril\Status_13_05_21';
 
 %% Reading files .las and traj
 traj = TrajectoryGenerate(pathInTrajectory, 'orthometricToElipsoidal', true); % trajectory of all the clouds
