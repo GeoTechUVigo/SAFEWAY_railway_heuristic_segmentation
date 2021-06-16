@@ -203,11 +203,14 @@ classdef Voxels
         idx_neighbor = occ_voxels(:,1) + neighbor_offset; % matriz con los posibles vecinos de cada voxel
         
         % Pongo como NaN los que no son vecinos
-        idx_neighbor(rem(occ_voxels(:,1), n_x) == 0,[3 6 9 12 14 17 20 23 26]) = NaN; % Límite inferior
-        idx_neighbor(rem(occ_voxels(:,1), n_x) == 1, [1 4 7 10 13 15 18 21 24]) = NaN; % Límte superior
-        idx_neighbor(idx_neighbor < 0) = NaN; % Límite izda.
-        idx_neighbor(idx_neighbor > n_x * n_y * n_z) = NaN; % Límite dcha.
-        
+        idx_neighbor(rem(occ_voxels(:,1), n_x) == 0,[3 6 9 12 14 17 20 23 26]) = NaN; % Límite superior X
+        idx_neighbor(rem(occ_voxels(:,1), n_x) == 1, [1 4 7 10 13 15 18 21 24]) = NaN; % Límte inferior X
+        idx_neighbor(rem(ceil(occ_voxels(:,1) / n_x) / n_y) == 0,[7 8 9 15 16 17 24 25 26]) = NaN; % Límite superior Y
+        idx_neighbor(rem(ceil(occ_voxels(:,1) / n_x) / n_y) == 1, [1 2 3 10 11 12 18 19 20]) = NaN; % Límte inferior X
+        idx_neighbor(idx_neighbor > n_x * n_y * n_z) = NaN; % Límite superior Z
+        idx_neighbor(idx_neighbor < 0) = NaN; % Límite inferior Z
+                    
+        %%
         % Elimino los vecinos que no hay porque el voxel no tiene puntos de
         % la nube
         [a,rows_neighbor]=ismember(idx_neighbor,occ_voxels(:,1));
