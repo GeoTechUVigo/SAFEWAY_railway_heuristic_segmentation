@@ -138,7 +138,7 @@ classdef pointCloud_ < matlab.mixin.Copyable & vision.internal.EnforceScalarHand
             
             [xyzPoints, C, nv, intensity, timeStamp, angle, sensor] = validateAndParseInputs(varargin{:}); 
             
-            this.Location = xyzPoints;
+            this.Location = double(xyzPoints);
             this.Color = C;
             this.Normal = nv;
             this.intensity = intensity;
@@ -974,7 +974,7 @@ function [xyzPoints, C, nv, intensity, timeStamp, angle, sensor] = validateAndPa
     parser.addRequired('xyzPoints', @(x)validateattributes(x,{'single', 'double'}, {'real','nonsparse','size', dims}));            
     parser.addParameter('Color', uint8([]), @(x)validateattributes(x,{'uint8'}, {'real','nonsparse'}));
     parser.addParameter('Normal', single([]),  @(x)validateattributes(x,{'single', 'double'}, {'real','nonsparse'}));
-    parser.addParameter('intensity', double([]), @(x)validateattributes(x,{'single', 'double', 'uint16'}, {'real','nonsparse'}));
+    parser.addParameter('intensity', double([]), @(x)validateattributes(x,{'single', 'double', 'uint8','uint16'}, {'real','nonsparse'}));
     parser.addParameter('timeStamp', double([]), @(x)validateattributes(x,{'single', 'double'}, {'real','nonsparse'}));
     parser.addParameter('angle', double([]), @(x)validateattributes(x,{'single', 'double', 'int8'}, {'real','nonsparse'}));
     parser.addParameter('sensor', uint8([]), @(x)validateattributes(x,{'uint8'}, {'real','nonsparse'}));

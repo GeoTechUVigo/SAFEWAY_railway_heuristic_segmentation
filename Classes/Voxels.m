@@ -74,9 +74,9 @@ classdef Voxels
             paso_z =(max_z - min_z) / n_z;
             
         %Cálculo de las coordenadas x e y de cada punto (~ 2 líneas)
-            dim_x = ceil((obj.parent_cloud(:,1) - min_x) / paso_x);
-            dim_y = ceil((obj.parent_cloud(:,2) - min_y) / paso_y);
-            dim_z = ceil((obj.parent_cloud(:,3) - min_z) / paso_z);
+            dim_x = uint32(ceil((obj.parent_cloud(:,1) - min_x) / paso_x));
+            dim_y = uint32(ceil((obj.parent_cloud(:,2) - min_y) / paso_y));
+            dim_z = uint32(ceil((obj.parent_cloud(:,3) - min_z) / paso_z));
 
         %Mover el caso dim_x = 0 y dim_y = 0 a la celda de coordenada 1
             dim_x(dim_x==0) = 1;
@@ -86,6 +86,7 @@ classdef Voxels
 
         %Definición de un índice líneal para cada triplete de coordenadas.
         %(~1 línea)
+        n_x = uint32(n_x); n_y = uint32(n_y); n_z = uint32(n_z); 
         idx = dim_x + (dim_y - 1) * n_x + (dim_z - 1) * n_x * n_y;
         
         %%%%% Estructuración de la información: Búsqueda, de la forma más
@@ -137,7 +138,7 @@ classdef Voxels
         %shift_index para que los puntos se muestren de forma ordenada en
         %función del vóxel al que pertenecen.(~ 1 línea)
         
-        data_sort = [data(shift_index,:),idx];
+        data_sort = data(shift_index,:);
         
         has_intensity = false;
         has_timeStamp = false;
@@ -205,8 +206,8 @@ classdef Voxels
         % Pongo como NaN los que no son vecinos
         idx_neighbor(rem(occ_voxels(:,1), n_x) == 0,[3 6 9 12 14 17 20 23 26]) = NaN; % Límite superior X
         idx_neighbor(rem(occ_voxels(:,1), n_x) == 1, [1 4 7 10 13 15 18 21 24]) = NaN; % Límte inferior X
-        idx_neighbor(rem(ceil(occ_voxels(:,1) / n_x) / n_y) == 0,[7 8 9 15 16 17 24 25 26]) = NaN; % Límite superior Y
-        idx_neighbor(rem(ceil(occ_voxels(:,1) / n_x) / n_y) == 1, [1 2 3 10 11 12 18 19 20]) = NaN; % Límte inferior X
+        idx_neighbor(rem(ceil(occ_voxels(:,1) / n_x), n_y) == 0,[7 8 9 15 16 17 24 25 26]) = NaN; % Límite superior Y
+        idx_neighbor(rem(ceil(occ_voxels(:,1) / n_x), n_y) == 1, [1 2 3 10 11 12 18 19 20]) = NaN; % Límte inferior X
         idx_neighbor(idx_neighbor > n_x * n_y * n_z) = NaN; % Límite superior Z
         idx_neighbor(idx_neighbor < 0) = NaN; % Límite inferior Z
                     
@@ -240,17 +241,18 @@ classdef Voxels
         
             lastPoint = 1;
             for i = 1:nVoxels
+                
                 nextPoint = lastPoint + occ_voxels(i,2);
                 points = lastPoint : nextPoint - 1;
                 
                 centroids(i,:)  = [mean(data_sort(points , 1),1),mean(data_sort(points , 2),1),mean(data_sort(points , 3),1)];
-                parent_idx{i}   = data_sort(points,4);
+                parent_idx{i}   = idx(points);
                 mean_z(i)       = mean(data_sort(points,3),1);
                 variance_z(i)   = var(data_sort(points,3),0,1);
                 range_z(i)      = range(data_sort(points,3),1);
                 max_z(i)        = max(data_sort(points,3),[],1);
                 min_z(i)        = min(data_sort(points,3),[],1);
-                
+                                
                 if has_intensity
                     intensity(i)    = mean(intensity_sort(points,1),1);
                 end
