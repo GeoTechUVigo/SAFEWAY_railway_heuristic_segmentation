@@ -82,6 +82,7 @@ for i = 1:numel(list_traj)
     traj = trajectory(0,0,0);
     points = readtable(strcat(pathInTrajectory, symb, list_traj(i).name));
     traj.points = points{:,:};
+    traj.points(:,3) = traj.points(:,3) + 1; % this traj is on the floor
     traj.timeStamp = zeros(length(traj.points),1);
     
     %% Clouds of this trajectory
@@ -104,31 +105,27 @@ for i = 1:numel(list_traj)
             break;
         end
         
+        % Merge all the points clouds using lastools, save it and load it
         input = string();
         for k = 1:length(list_clouds_traj)
             input = input + pathInCloud + "\" + list_clouds_traj(k).name + " ";
         end
         
         output = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\Archivos\temp.las";
-        system("lasmerge -i " +input + "-o " + output)
+        system("lasmerge -i " +input + "-o " + output);
         
-        cloud = laz2pointCloud_(strcat(pathInCloud, symb, list_clouds_traj(1).name));
-
-        for k = 2:length(list_clouds_traj)
-            cloud_aux = laz2pointCloud_(strcat(pathInCloud, symb, list_clouds_traj(k).name));
-            cloud = pointCloud_([cloud.Location; cloud_aux.Location],'intensity', [cloud.intensity; cloud_aux.intensity]);
-        end
-        
-        % apaño por adaptar el codigo. No se modifica la nube por lo que no haria falta
-        idxCloud = 1:length(cloud.Location);
-        sections{1}.cloud = 1:length(cloud.Location);
-        sections{1}.traj = 1:length(trajCloud.points);
+        cloud = las2pointCloud_(output);
         
         % Voxelazing
         status.voxelize = tic;
         cloud = Voxels(cloud,grid);
         status.voxelize = toc(status.voxelize);
-
+        
+        % apaño por adaptar el codigo. No se modifica la nube por lo que no haria falta
+        sections{1}.cloud = cat(1, cloud.parent_idx{:});
+        sections{1}.traj = 1:length(trajCloud.points);
+        idxCloud = 1:length(cloud.parent_cloud);
+        
         % Segmentation
         status.segmentation  = tic;
         [components, status] = Segmentation(cloud, trajCloud, sections, idxCloud, model, status);

@@ -86,8 +86,7 @@ classdef Voxels
 
         %Definición de un índice líneal para cada triplete de coordenadas.
         %(~1 línea)
-        n_x = uint32(n_x); n_y = uint32(n_y); n_z = uint32(n_z); 
-        idx = dim_x + (dim_y - 1) * n_x + (dim_z - 1) * n_x * n_y;
+        idx = dim_x + (dim_y - 1) * uint32(n_x) + (dim_z - 1) * uint32(n_x) *  uint32(n_y);
         
         %%%%% Estructuración de la información: Búsqueda, de la forma más
         %eficiente posible, del número de vóxeles ocupados y del número de
@@ -201,7 +200,7 @@ classdef Voxels
             (+ n_x*n_y - 1), (+ n_x*n_y), (+ n_x*n_y + 1),...
             (+ n_x*n_y + n_x - 1), (+ n_x*n_y + n_x), (+ n_x*n_y + n_x + 1)];
         
-        idx_neighbor = occ_voxels(:,1) + neighbor_offset; % matriz con los posibles vecinos de cada voxel
+        idx_neighbor = double(occ_voxels(:,1)) + neighbor_offset; % matriz con los posibles vecinos de cada voxel
         
         % Pongo como NaN los que no son vecinos
         idx_neighbor(rem(occ_voxels(:,1), n_x) == 0,[3 6 9 12 14 17 20 23 26]) = NaN; % Límite superior X
@@ -246,7 +245,7 @@ classdef Voxels
                 points = lastPoint : nextPoint - 1;
                 
                 centroids(i,:)  = [mean(data_sort(points , 1),1),mean(data_sort(points , 2),1),mean(data_sort(points , 3),1)];
-                parent_idx{i}   = idx(points);
+                parent_idx{i}   = data_sort(points,4);
                 mean_z(i)       = mean(data_sort(points,3),1);
                 variance_z(i)   = var(data_sort(points,3),0,1);
                 range_z(i)      = range(data_sort(points,3),1);
