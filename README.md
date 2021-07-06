@@ -9,8 +9,8 @@ Más información en la caprpeta Documents
 # RESUMEN
 
 FLUJO
-![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/Images_readme/workflow.png)
-
+![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/blob/main/Images_readme/workflow.png)
+            
  El código descrito es este documento tiene como objetivo el de segmentar los elementos presentes en entornos de ferrocarril a partir de nubes de puntos en formato .las y de la trayectoria del sensor en formato ASCII. Como resultado, se obtienen los índices de los puntos pertenecientes a cada elemento, indicando de qué tipo de elemento se trata. 
 El proceso consta de un seccionado, un voxelizado y una segmentación heurística. En el proceso de seccionado, las nubes se organizan en fragmentos de una longitud determinada y limitando la curvatura máxima de la vía del tren en ella. Además, los puntos lejanos a la trayectoria no se incluyen en ninguna sección, ya que no aportan información de la infraestructura.
 Tras voxelizar las secciones, se lleva a cabo el proceso de segmentación heurística. En este proceso se extrae secuencialmente cada tipo de elementos de cada sección.
@@ -18,10 +18,10 @@ El resultado se guarda en un archivo .mat. Este formato consta de celdas en las 
 Este archivo también tiene otra variable sobre el status del proceso de segmentación.
 
 # EJEMPLOS
-![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/Images_readme/several_tracks.png)
-![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/Images_readme/tunnel_entrance.png)
-![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/Images_readme/two_tracks.png)
-![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/Images_readme/under_overpass.png)
+![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/blob/main/Images_readme/tunnel_entrance.png)
+![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/blob/main/Images_readme/two_tracks.png)
+![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/blob/main/Images_readme/under_overpass.png)
+![alt_text](https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation/blob/main/Images_readme/several_tracks.png)
 
 # EJECUCIÓN
 Para su ejecución se debe de tener el código principal RailwayHeuristicSegmentation y las carpetas Classes, Preprocessing y Railway con sus respectivas subcarpetas y códigos.
