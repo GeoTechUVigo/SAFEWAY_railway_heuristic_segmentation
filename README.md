@@ -1,5 +1,6 @@
 # SAFEWAY_railway_heuristic_segmentation
 porjecto SAFEWAY2020
+
 Autor: Daniel Lamas Novoa https://github.com/Daniel22L
 
 Publicación: https://www.mdpi.com/2072-4292/13/12/2332
