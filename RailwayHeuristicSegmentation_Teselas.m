@@ -59,6 +59,10 @@ end
 %% Adding folders and subfolders
 addpath Classes Preprocessing Processing
 
+%%
+grid = 0.1;
+gird_save = 0.01;
+
 %% Paths
 pathInTrajectory = "D:\Trabajo\Clouds\UK\trajectories";
 pathInCloud      = "D:\Trabajo\Clouds\UK\reduced_laz_files";
@@ -76,7 +80,6 @@ model = GenerateElements([pathModels,symb]);
 list_traj = dir(strcat(pathInTrajectory, symb, '*.csv')); % list with all the trajectories
 list_clouds = dir(strcat(pathInCloud, symb, '*.laz')); % list with all the clouds
 
-grid = 0.1;
 for i = 1:numel(list_traj)
     %% Trajectory. It is created in this way to use a trajectory object correctly
     traj = trajectory(0,0,0);
