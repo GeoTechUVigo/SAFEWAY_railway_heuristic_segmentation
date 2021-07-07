@@ -74,9 +74,9 @@ classdef Voxels
             paso_z =(max_z - min_z) / n_z;
             
         %Cálculo de las coordenadas x e y de cada punto (~ 2 líneas)
-            dim_x = uint32(ceil((obj.parent_cloud(:,1) - min_x) / paso_x));
-            dim_y = uint32(ceil((obj.parent_cloud(:,2) - min_y) / paso_y));
-            dim_z = uint32(ceil((obj.parent_cloud(:,3) - min_z) / paso_z));
+            dim_x = uint64(ceil((obj.parent_cloud(:,1) - min_x) / paso_x));
+            dim_y = uint64(ceil((obj.parent_cloud(:,2) - min_y) / paso_y));
+            dim_z = uint64(ceil((obj.parent_cloud(:,3) - min_z) / paso_z));
 
         %Mover el caso dim_x = 0 y dim_y = 0 a la celda de coordenada 1
             dim_x(dim_x==0) = 1;
@@ -86,7 +86,7 @@ classdef Voxels
 
         %Definición de un índice líneal para cada triplete de coordenadas.
         %(~1 línea)
-        idx = dim_x + (dim_y - 1) * uint32(n_x) + (dim_z - 1) * uint32(n_x) *  uint32(n_y);
+        idx = dim_x + (dim_y - 1) * uint64(n_x) + (dim_z - 1) * uint64(n_x) *  uint64(n_y);
         
         %%%%% Estructuración de la información: Búsqueda, de la forma más
         %eficiente posible, del número de vóxeles ocupados y del número de
@@ -189,7 +189,6 @@ classdef Voxels
         %(dim_x, dim_y, dim_z). 
         
         
-        
         neighbor_offset =[(- n_x*n_y - n_x - 1), (- n_x*n_y - n_x), (- n_x*n_y - n_x + 1),...
             (- n_x*n_y - 1), (- n_x*n_y), (- n_x*n_y + 1),...
             (- n_x*n_y + n_x -1), (- n_x*n_y + n_x), (- n_x*n_y + n_x + 1),...
@@ -199,9 +198,9 @@ classdef Voxels
             (+ n_x*n_y - n_x - 1), (+ n_x*n_y - n_x), (+ n_x*n_y - n_x + 1),...
             (+ n_x*n_y - 1), (+ n_x*n_y), (+ n_x*n_y + 1),...
             (+ n_x*n_y + n_x - 1), (+ n_x*n_y + n_x), (+ n_x*n_y + n_x + 1)];
-        
+
         idx_neighbor = double(occ_voxels(:,1)) + neighbor_offset; % matriz con los posibles vecinos de cada voxel
-        
+
         % Pongo como NaN los que no son vecinos
         idx_neighbor(rem(occ_voxels(:,1), n_x) == 0,[3 6 9 12 14 17 20 23 26]) = NaN; % Límite superior X
         idx_neighbor(rem(occ_voxels(:,1), n_x) == 1, [1 4 7 10 13 15 18 21 24]) = NaN; % Límte inferior X
@@ -209,14 +208,14 @@ classdef Voxels
         idx_neighbor(rem(ceil(occ_voxels(:,1) / n_x), n_y) == 1, [1 2 3 10 11 12 18 19 20]) = NaN; % Límte inferior X
         idx_neighbor(idx_neighbor > n_x * n_y * n_z) = NaN; % Límite superior Z
         idx_neighbor(idx_neighbor < 0) = NaN; % Límite inferior Z
-                    
+
         %%
         % Elimino los vecinos que no hay porque el voxel no tiene puntos de
         % la nube
         [a,rows_neighbor]=ismember(idx_neighbor,occ_voxels(:,1));
         idx_neighbor(~a) = NaN;
-        rows_neighbor(~a) = NaN;        
-        
+        rows_neighbor(~a) = NaN;
+
         % Relleno la lista de celdas
 %         for i = 1: nVoxels
 %             neighbors{i} = idx_neighbor_(i,:);

@@ -61,7 +61,7 @@ addpath Classes Preprocessing Processing
 
 %%
 grid = 0.1;
-gird_save = 0.01;
+grid_save = 0.05;
 
 %% Paths
 pathInTrajectory = "D:\Trabajo\Clouds\UK\trajectories";
@@ -80,26 +80,42 @@ model = GenerateElements([pathModels,symb]);
 list_traj = dir(strcat(pathInTrajectory, symb, '*.csv')); % list with all the trajectories
 list_clouds = dir(strcat(pathInCloud, symb, '*.laz')); % list with all the clouds
 
+%% All the trajectories. It is created in this way to use a trajectory object correctly
+traj = cell(numel(list_traj),1);
 for i = 1:numel(list_traj)
-    %% Trajectory. It is created in this way to use a trajectory object correctly
-    traj = trajectory(0,0,0);
+    traj{i} = trajectory(0,0,0);
     points = readtable(strcat(pathInTrajectory, symb, list_traj(i).name));
-    traj.points = points{:,:};
-    traj.points(:,3) = traj.points(:,3) + 1; % this traj is on the floor
-    traj.timeStamp = zeros(length(traj.points),1);
-    
+    traj{i}.points = points{:,:};
+    traj{i}.points(:,3) = traj{i}.points(:,3) + 1; % this traj is on the floor
+    traj{i}.timeStamp = zeros(length(traj{i}.points),1);
+end
+
+%% Sectioning each trajectory, loading the clouds of each section, removing lateral points using all the trajectories and segmenting it.
+% .laz that have been analysed in other sections are not analaysed now.
+for i = 1:numel(list_traj)
     %% Clouds of this trajectory
     matrix_clouds = readtable(strcat(pathCloudsOfTrajectories, symb, list_traj(i).name));
     matrix_clouds = matrix_clouds{:,:};
     clouds_traj = false(size(matrix_clouds));
     clouds_traj(matrix_clouds == "True") = true;
     
+    %% Create a matrix where to know which .laz have been analysed
+    if i == 1
+        analysed_laz = false(1,size(clouds_traj,2));
+    end
+    
+    %% Removing analysed laz
+    clouds_traj(:,analysed_laz) = false;
+    
+    %% Updating analysed_laz
+    analysed_laz(any(clouds_traj,1)) = true;
+    
     %% Sectioning trajectory
-    sections_traj = Sectioning_trajectory(traj);
-    trajCloud = traj; % esto se hace así porque los de UK no mandaron trayectoria. Para no modificar el código se hace una con los XYZ nada más leidos de un csv
+    sections_traj = Sectioning_trajectory(traj{i});
+    
     %% Analyse the cloud of each trajectory section
     for j = 1:length(sections_traj)
-        trajCloud.points = traj.points(sections_traj{j},:);
+        trajCloud = select(traj{i}, sections_traj{j});
         
         %% Load clouds of this section
         clouds_traj_sec = clouds_traj(sections_traj{j},:);
@@ -114,29 +130,43 @@ for i = 1:numel(list_traj)
             input = input + pathInCloud + "\" + list_clouds_traj(k).name + " ";
         end
         
-        output = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\Archivos\temp.las";
-        system("lasmerge -i " +input + "-o " + output);
+        output = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\Archivos\temp" + string(i) + ".las";
+        system("lasmerge -i " + input + "-o " + output);
         
         cloud = las2pointCloud_(output);
         
-        % Voxelazing
+        %% Downsampling
+        num_points = 6*10^6;
+        if num_points < size(cloud.Location,1)
+            indexes = 1:size(cloud.Location,1);
+            cloud = select(cloud,sort(indexes(randperm(length(indexes), num_points)))); 
+        end
+        
+        %% Remove remote points
+        max_dist = 10;
+        remote = remote_points(cloud, trajCloud, traj, max_dist);
+        
+        %% Save this cloud to free memory. This will be rewrited with the segmentation information
+        % TODO: crear una función para generar una estructura que pueda ser guardada usango LASwrite(cloud,pathOut);
+        
+        %% Voxels
         status.voxelize = tic;
-        cloud = Voxels(cloud,grid);
+        cloud = Voxels(cloud,grid_save);
         status.voxelize = toc(status.voxelize);
         
-        % apaño por adaptar el codigo. No se modifica la nube por lo que no haria falta
+        %% Segmentation
+        % apaño para reutilizar el codigo. No se modifica la nube por lo que no haria falta
         sections{1}.cloud = cat(1, cloud.parent_idx{:});
         sections{1}.traj = 1:length(trajCloud.points);
         idxCloud = 1:length(cloud.parent_cloud);
-        
-        % Segmentation
+       
         status.segmentation  = tic;
         [components, status] = Segmentation(cloud, trajCloud, sections, idxCloud, model, status);
         status.segmentation = toc(status.segmentation);
         
         status.total = toc(status.total);
 
-        % Saving
+        %% Saving
         status.save = tic;
         cloud = []; % cloud .las is read in ModifySaveLas, so cloud is delete to free up memory. clear cloud is not applicable in parfor loop
         ModifySaveLas(strcat(pathInCloud, symb, list(i).name),components, 'pathOut', strcat(pathOut, symb, list(i).name)); 
