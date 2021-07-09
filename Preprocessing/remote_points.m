@@ -1,4 +1,4 @@
-function [remote] = remote_points(cloud, trajCloud, all_trajs, max_dist)
+function [remote] = remote_points(location, trajCloud, all_trajs, max_dist)
 % This function is used to remove all remote point from any traj. One cloud
 % is used to orient the cloud. Ones it is oriented, the mean Y of all the
 % trajectories of this cloud (this cloud might have more tahn one 
@@ -26,20 +26,20 @@ pca_traj= PcaFlattering(trajCloud.points);
 mean_traj = mean(trajCloud.points);
 
 trajCloud.points = trajCloud.points * pca_traj;
-cloud.Location = cloud.Location - mean_traj;
-cloud.Location = cloud.Location * pca_traj;
+location = location - mean_traj;
+location = location * pca_traj;
 
 mean_y = zeros(numel(all_trajs),1);
 for i = 1:numel(all_trajs)
     all_trajs{i}.points =  all_trajs{i}.points - mean_traj;
     all_trajs{i}.points = all_trajs{i}.points * pca_traj;
     
-    all_trajs{i} = select(all_trajs{i}, all_trajs{i}.points(:,1) > min(cloud.Location(:,1)) & all_trajs{i}.points(:,1) < max(cloud.Location(:,1)));
+    all_trajs{i} = select(all_trajs{i}, all_trajs{i}.points(:,1) > min(location(:,1)) & all_trajs{i}.points(:,1) < max(location(:,1)));
     mean_y(i) = mean(all_trajs{i}.points(:,2));
 end
 
 %% Calculing remote points
-remote = cloud.Location(:,2) < (min(mean_y) - max_dist) | cloud.Location(:,2) > (max(mean_y) + max_dist);
+remote = location(:,2) < (min(mean_y) - max_dist) | location(:,2) > (max(mean_y) + max_dist);
 
 % figure; pcshow(cloud.Location,'g');
 % hold on; pcshow(cloud.Location(remote,:),'b');

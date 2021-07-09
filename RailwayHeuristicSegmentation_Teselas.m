@@ -57,7 +57,7 @@ else
 end 
 
 %% Adding folders and subfolders
-addpath Classes Preprocessing Processing
+addpath Classes Preprocessing Processing Postprocessing
 
 %%
 grid = 0.1;
@@ -66,9 +66,10 @@ grid_save = 0.05;
 %% Paths
 pathInTrajectory = "D:\Trabajo\Clouds\UK\trajectories";
 pathInCloud      = "D:\Trabajo\Clouds\UK\reduced_laz_files";
-pathOut          = "D:\Trabajo\Clouds\UK\reduced_laz_files\output";
+pathOut          = "D:\Trabajo\Clouds\UK\output";
 pathOutStatus    = "D:\Trabajo\Clouds\UK\reduced_laz_files\status";
 pathCloudsOfTrajectories = "D:\Trabajo\Clouds\UK\in_range";
+output_temp = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\Archivos\temp";
 
 %% Data to extraction
 % Elements' model
@@ -127,27 +128,27 @@ for i = 1:numel(list_traj)
         % Merge all the points clouds using lastools, save it and load it
         input = string();
         for k = 1:length(list_clouds_traj)
-            input = input + pathInCloud + "\" + list_clouds_traj(k).name + " ";
+            input = input + pathInCloud + symb + list_clouds_traj(k).name + " ";
         end
         
-        output = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\Archivos\temp" + string(i) + ".las";
-        system("lasmerge -i " + input + "-o " + output);
+        system("lasmerge -i " + input + "-o " + output_temp + string(i) + ".las");
         
-        cloud = las2pointCloud_(output);
+        cloud = las2pointCloud_(output_temp + string(i) + ".las");
+        
+        %% Remove remote points
+        max_dist = 10;
+        remote = remote_points(cloud.Location, trajCloud, traj, max_dist);
+        cloud = select(cloud, find(~remote));
         
         %% Downsampling
         num_points = 6*10^6;
         if num_points < size(cloud.Location,1)
             indexes = 1:size(cloud.Location,1);
-            cloud = select(cloud,sort(indexes(randperm(length(indexes), num_points)))); 
+            cloud = select(cloud, sort(indexes(randperm(length(indexes), num_points)))); 
         end
         
-        %% Remove remote points
-        max_dist = 10;
-        remote = remote_points(cloud, trajCloud, traj, max_dist);
-        
         %% Save this cloud to free memory. This will be rewrited with the segmentation information
-        % TODO: crear una función para generar una estructura que pueda ser guardada usango LASwrite(cloud,pathOut);
+        SaveLas(cloud,pathOut + symb + string(i) + ".las");
         
         %% Voxels
         status.voxelize = tic;
