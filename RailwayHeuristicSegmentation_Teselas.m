@@ -67,9 +67,9 @@ grid_save = 0.05;
 pathInTrajectory = "D:\Trabajo\Clouds\UK\trajectories";
 pathInCloud      = "D:\Trabajo\Clouds\UK\reduced_laz_files";
 pathOut          = "D:\Trabajo\Clouds\UK\output";
-pathOutStatus    = "D:\Trabajo\Clouds\UK\reduced_laz_files\status";
+pathOutStatus    = "D:\Trabajo\Clouds\UK\status";
 pathCloudsOfTrajectories = "D:\Trabajo\Clouds\UK\in_range";
-output_temp = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\Archivos\temp";
+output_temp = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\archivos_temp";
 
 %% Data to extraction
 % Elements' model
@@ -116,62 +116,83 @@ for i = 1:numel(list_traj)
     
     %% Analyse the cloud of each trajectory section
     for j = 1:length(sections_traj)
-        trajCloud = select(traj{i}, sections_traj{j});
-        
-        %% Load clouds of this section
-        clouds_traj_sec = clouds_traj(sections_traj{j},:);
-        list_clouds_traj = list_clouds(any(clouds_traj_sec,1));
-        if isempty(list_clouds_traj)
-            break;
-        end
-        
-        % Merge all the points clouds using lastools, save it and load it
-        input = string();
-        for k = 1:length(list_clouds_traj)
-            input = input + pathInCloud + symb + list_clouds_traj(k).name + " ";
-        end
-        
-        system("lasmerge -i " + input + "-o " + output_temp + string(i) + ".las");
-        
-        cloud = las2pointCloud_(output_temp + string(i) + ".las");
-        
-        %% Remove remote points
-        max_dist = 10;
-        remote = remote_points(cloud.Location, trajCloud, traj, max_dist);
-        cloud = select(cloud, find(~remote));
-        
-        %% Downsampling
-        num_points = 6*10^6;
-        if num_points < size(cloud.Location,1)
-            indexes = 1:size(cloud.Location,1);
-            cloud = select(cloud, sort(indexes(randperm(length(indexes), num_points)))); 
-        end
-        
-        %% Save this cloud to free memory. This will be rewrited with the segmentation information
-        SaveLas(cloud,pathOut + symb + string(i) + ".las");
-        
-        %% Voxels
-        status.voxelize = tic;
-        cloud = Voxels(cloud,grid_save);
-        status.voxelize = toc(status.voxelize);
-        
-        %% Segmentation
-        % apaño para reutilizar el codigo. No se modifica la nube por lo que no haria falta
-        sections{1}.cloud = cat(1, cloud.parent_idx{:});
-        sections{1}.traj = 1:length(trajCloud.points);
-        idxCloud = 1:length(cloud.parent_cloud);
-       
-        status.segmentation  = tic;
-        [components, status] = Segmentation(cloud, trajCloud, sections, idxCloud, model, status);
-        status.segmentation = toc(status.segmentation);
-        
-        status.total = toc(status.total);
+        try
+            status.total = tic; 
+            
+            sections = [];   
+            trajCloud = select(traj{i}, sections_traj{j});
+            
+            %% Clouds of this section
+            clouds_traj_sec = clouds_traj(sections_traj{j},:);
+            list_clouds_traj = list_clouds(any(clouds_traj_sec,1));
 
-        %% Saving
-        status.save = tic;
-        cloud = []; % cloud .las is read in ModifySaveLas, so cloud is delete to free up memory. clear cloud is not applicable in parfor loop
-        ModifySaveLas(strcat(pathInCloud, symb, list(i).name),components, 'pathOut', strcat(pathOut, symb, list(i).name)); 
-        status.save = toc(status.save);
-        
+            if isempty(list_clouds_traj)
+               error('no list_clouds_traj'); 
+            else
+                %% Load clouds of this section
+                % Merge all the points clouds using lastools, save it and load it
+                input = string();
+                for k = 1:length(list_clouds_traj)
+                    input = input + pathInCloud + symb + list_clouds_traj(k).name + " ";
+                end
+                file_temp = strcat(output_temp, symb,string(i), "_", string(j), ".las");
+                system("lasmerge -i " + input + "-o "  + file_temp);
+                
+                % Cloud with all the teselas merged
+                cloud = las2pointCloud_(strcat(output_temp, symb,string(i), "_", string(j), ".las"));
+                % Delete this cloud from disk
+                delete(file_temp);
+                
+                %% Remove remote points
+                max_dist = 10;
+                remote = remote_points(cloud.Location, trajCloud, traj, max_dist);
+                cloud = select(cloud, find(~remote));
+
+                %% Downsampling
+                num_points = 6*10^6;
+                if num_points < size(cloud.Location,1)
+                    indexes = 1:size(cloud.Location,1);
+                    cloud = select(cloud, sort(indexes(randperm(length(indexes), num_points)))); 
+                end
+
+        %         figure; pcshow(cloud.Location);
+
+                %% Save this cloud to free RAM memory and work just with the voxelized one. This will be rewrited with the segmentation information.
+                file_out = strcat(pathOut, symb, string(i), "_" + string(j), ".las");
+                SaveLas(cloud, file_out);
+
+                %% Voxels
+                status.voxelize = tic;
+                cloud = Voxels(cloud,grid_save);
+                status.voxelize = toc(status.voxelize);
+
+                %% Segmentation
+                % apaño para reutilizar el codigo. No se modifica la nube por lo que no haria falta
+                sections{1}.cloud = cat(1, cloud.parent_idx{:});
+                sections{1}.traj = 1:length(trajCloud.points);
+                idxCloud = 1:length(cloud.parent_cloud);
+
+                status.segmentation  = tic;
+                [components, status] = Segmentation(cloud, trajCloud, sections, idxCloud, model, status);
+                status.segmentation = toc(status.segmentation);
+
+                %% Saving
+                status.save = tic;
+                cloud = []; % cloud .las is read in ModifySaveLas, so cloud is delete to free up memory. clear cloud is not applicable in parfor loop
+                ModifySaveLas(file_out, components, 'pathOut', file_out);
+                % Save as .laz
+                system(strcat("las2las -i ", file_out, " -o ", erase(file_out, '.las'), ".laz"));
+                delete(file_out);
+                status.save = toc(status.save);
+                
+                status.total = toc(status.total);
+            end
+            
+        catch ME
+            status = getReport(ME);
+        end
+          
+        %% Save status
+        SaveParallel(strcat(pathOutStatus, symb, string(i), "_", string(j), '_status.mat'), status);
     end
 end

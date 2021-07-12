@@ -60,9 +60,9 @@ function [] = ModifySaveLas(varargin)
 
 %% Checking inputs
 parser = inputParser;
-parser.addRequired('pathIn', @(x)validateattributes(x,{'char'}, {'nonempty'})); 
+parser.addRequired('pathIn', @(x)validateattributes(x,{'char', 'string'}, {'nonempty'})); 
 parser.addRequired('components', @(x)validateattributes(x,{'struct'}, {'nonempty'})); 
-parser.addParameter('pathOut', string([]),@(x)validateattributes(x,{'char'}, {'nonsparse'}));
+parser.addParameter('pathOut', string([]),@(x)validateattributes(x,{'char', 'string'}, {'nonsparse'}));
 parser.parse(varargin{:});
     
 % Inputs
@@ -75,7 +75,7 @@ if isempty(pathOut)
 end
 
 %% Loading cloud
-cloud = LASread(pathIn);
+cloud = LASread(char(pathIn));
 
 %% Initialising
 cloud.record.classification(:) = 0;
@@ -154,7 +154,7 @@ for i = 1:numel(components.rails)
     for j = 1:numel(components.cables.pairs{i})
         cloud.record.classification(components.cables.pairs{i}{j}{1})    = 2; % catenary
         cloud.record.classification(components.cables.pairs{i}{j}{2})    = 3; % contact
-        cloud.record.classification(cat(1,components.droppers{i}{j}{:})) = 4; % droppers
+        cloud.record.classification(cat(2,components.droppers{i}{j}{:})) = 4; % droppers
     end
 
     % Groups. Saving them in pont_source_id
@@ -179,11 +179,11 @@ for i = 1:numel(components.rails)
     for j = 1:numel(components.cables.pairs{i})
         cloud.record.user_data(components.cables.pairs{i}{j}{1}) = i*10+j;
         cloud.record.user_data(components.cables.pairs{i}{j}{2}) = i*10+j;
-        cloud.record.user_data(cat(1,components.droppers{i}{j}{:})) = i*10+j;
+        cloud.record.user_data(cat(2,components.droppers{i}{j}{:})) = i*10+j;
     end
 end
 
- LASwrite(cloud,pathOut);
+ LASwrite(cloud,char(pathOut));
 
 end
 

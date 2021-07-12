@@ -38,7 +38,7 @@ model.mastNoBracketModel = Element('dimensions', [1.2,0.75,10], 'eigenvectors', 
 model.cableModel         = Element('dimensions', [NaN,0.3,NaN], 'eigenvectors', [NaN,NaN,NaN;NaN,NaN,NaN;NaN,NaN,NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,NaN,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]);
 model.dropperModel       = Element('dimensions', [NaN,1,NaN], 'eigenvectors', [0,NaN,NaN;0, NaN, NaN;1, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,1,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]);
 model.railModel          = Element('dimensions', [NaN,0.6,0.1], 'eigenvectors', [NaN,NaN,NaN;NaN, NaN, NaN;NaN, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,NaN,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]); % 'dimensions', [NaN,0.3,0.1]
-model.railPairModel      = Element('dimensions', [NaN,1.74,0.3], 'eigenvectors', [NaN,NaN,NaN;NaN, NaN, NaN;NaN, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,0.02,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]);
-
+% model.railPairModel      = Element('dimensions', [NaN,1.74,0.3], 'eigenvectors', [NaN,NaN,NaN;NaN, NaN, NaN;NaN, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,0.02,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]); % Chamartin-Avila
+model.railPairModel      = Element('dimensions', [NaN,1.54,0.3], 'eigenvectors', [NaN,NaN,NaN;NaN, NaN, NaN;NaN, NaN, NaN], 'eigenvalues', [NaN,NaN, NaN], 'toleranceDimensions', [NaN,0.02,NaN], 'toleranceEigenvectors', [NaN,NaN,NaN], 'toleranceEigenvalues', [NaN,NaN,NaN]); % UK
 end
 

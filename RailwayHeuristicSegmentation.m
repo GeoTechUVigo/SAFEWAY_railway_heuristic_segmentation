@@ -110,8 +110,8 @@ parfor i = 1:numel(list)
         ModifySaveLas(strcat(pathInCloud, symb, list(i).name),components, 'pathOut', strcat(pathOut, symb, list(i).name)); 
         status.save = toc(status.save);
             
-    catch
-        status = 'Error';
+    catch ME
+        status = getReport(ME);
     end
     
     SaveParallel(strcat(pathOutStatus, symb, erase(list(i).name, '.las'), '_status.mat'), status);
