@@ -61,7 +61,6 @@ addpath Classes Preprocessing Processing Postprocessing
 
 %%
 grid = 0.1;
-grid_save = 0.05;
 
 %% Paths
 pathInTrajectory = "D:\Trabajo\Clouds\UK\trajectories";
@@ -163,7 +162,7 @@ for i = 1:numel(list_traj)
 
                 %% Voxels
                 status.voxelize = tic;
-                cloud = Voxels(cloud,grid_save);
+                cloud = Voxels(cloud,grid);
                 status.voxelize = toc(status.voxelize);
 
                 %% Segmentation
