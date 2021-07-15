@@ -18,6 +18,17 @@
     
     methods
         function obj = raster2D(cloud, grid) %Constructor de la clase.
+            % Checking cloud properties
+            if ~isempty(cloud.intensity)
+                cloud_intensity = cloud.intensity;
+            else
+                cloud_intensity = zeros(size(cloud.Location,1),1);
+            end
+            if ~isempty(cloud.angle)
+                cloud_angle = cloud.angle;
+            else
+                cloud_angle = zeros(size(cloud.Location,1),1);
+            end 
             
             obj.parent_cloud = cloud.Location;
             min_x = min(cloud.Location(:,1)); max_x = max(cloud.Location(:,1));
@@ -53,7 +64,7 @@
 
             idx = dim_y + (dim_x - 1) * n_ancho;
             parent_id = (1:size(idx,1))';
-            pixel = [obj.parent_cloud, double(cloud.intensity), double(cloud.angle) parent_id];
+            pixel = [obj.parent_cloud, double(cloud_intensity), double(cloud_angle) parent_id];
             dim = [dim_y, dim_x]; 
             [idx, shift_index] = sortrows(idx);
             dim = dim(shift_index,:); 

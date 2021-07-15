@@ -63,12 +63,12 @@ addpath Classes Preprocessing Processing Postprocessing
 grid = 0.1;
 
 %% Paths
-pathInTrajectory = "D:\Trabajo\Clouds\UK\trajectories";
-pathInCloud      = "D:\Trabajo\Clouds\UK\reduced_laz_files";
-pathOut          = "D:\Trabajo\Clouds\UK\output";
-pathOutStatus    = "D:\Trabajo\Clouds\UK\status";
-pathCloudsOfTrajectories = "D:\Trabajo\Clouds\UK\in_range";
-output_temp = "D:\Trabajo\SAFEWAY2020\Segmentacion\SAFEWAY_railway_heuristic_segmentation\archivos_temp";
+pathInTrajectory = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\trajectories";
+pathInCloud      = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\reduced_laz_files";
+pathOut          = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\output";
+pathOutStatus    = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\status";
+pathCloudsOfTrajectories = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\in_range";
+output_temp = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\SAFEWAY_railway_heuristic_segmentation\archivos_temp";
 
 %% Data to extraction
 % Elements' model
@@ -114,7 +114,7 @@ for i = 1:numel(list_traj)
     sections_traj = Sectioning_trajectory(traj{i});
     
     %% Analyse the cloud of each trajectory section
-    for j = 1:length(sections_traj)
+    parfor j = 1:length(sections_traj)
         try
             status.total = tic; 
             
@@ -146,13 +146,20 @@ for i = 1:numel(list_traj)
                 max_dist = 10;
                 remote = remote_points(cloud.Location, trajCloud, traj, max_dist);
                 cloud = select(cloud, find(~remote));
+                if isempty(cloud.Location)
+                    error('all points are remote'); 
+                end
 
                 %% Downsampling
-                num_points = 6*10^6;
-                if num_points < size(cloud.Location,1)
-                    indexes = 1:size(cloud.Location,1);
-                    cloud = select(cloud, sort(indexes(randperm(length(indexes), num_points)))); 
-                end
+                gridStep = 0.03;
+                cloud = pcdownsample(pointCloud(cloud.Location, 'Intensity', double(cloud.intensity)),'gridAverage',gridStep);
+                cloud = pointCloud_(cloud.Location, 'intensity', uint16(cloud.Intensity));
+                
+%                 num_points = 10*10^6;
+%                 if num_points < size(cloud.Location,1)
+%                     indexes = 1:size(cloud.Location,1);
+%                     cloud = select(cloud, sort(indexes(randperm(length(indexes), num_points)))); 
+%                 end
 
         %         figure; pcshow(cloud.Location);
 
@@ -162,7 +169,7 @@ for i = 1:numel(list_traj)
 
                 %% Voxels
                 status.voxelize = tic;
-                cloud = Voxels(cloud,grid);
+                cloud = Voxels(cloud, grid);
                 status.voxelize = toc(status.voxelize);
 
                 %% Segmentation

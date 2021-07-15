@@ -116,10 +116,13 @@ if ~isempty(droppers)
             if any(ismember(droppers(idx == clusters(i)), catenary{j})) && any(ismember(droppers(idx == clusters(i)), contact{j}))
                 aux = droppers(idx == clusters(i));
                 aux = aux(ismember(aux,possibleDroppers)); % dropper without any voxel of cables
+                if isempty(aux) % if there are not any point, it means that all this points are cable, so it is not dropper
+                    break;
+                end
                 if CheckElement(vx.Location(aux,:), dropperModel) % Checking element
                     components.droppers{j}{numel(components.droppers{j}) + 1} =  aux;
                 end
-                break;
+                break; % next cluster, because this cluster has been assigned as a dropper of this pair of cables
             end
         end
     end
