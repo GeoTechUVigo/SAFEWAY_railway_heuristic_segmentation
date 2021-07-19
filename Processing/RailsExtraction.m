@@ -456,9 +456,14 @@ if ~isempty(components.cables.others)
     keep = false(numel(components.masts),1);
     cableOthers = cat(1,components.cables.others{:});
     for i = 1:numel(components.masts)
-        if min(min(pdist2(vx.Location(components.masts{i},:), vx.Location(cableOthers,:)),[],1)) < 1 % min distance between this mast and any cable other
-            keep(i) = true;
-        end    
+        try
+            % Try becuase if the mast as a lot of points pdist2() does not
+            % work. It is not a prlobem because there are not must with
+            % sucha amount of points.
+            if min(min(pdist2(vx.Location(components.masts{i},:), vx.Location(cableOthers,:)),[],1)) < 1 % min distance between this mast and any cable other.
+                keep(i) = true;
+            end
+        end
     end
      
 else

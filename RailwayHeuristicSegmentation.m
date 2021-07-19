@@ -27,7 +27,7 @@
 %
 % pathOut : char. Path to save compontens indexes and status.
 %
-% pathErrors : char. Path to save errors in the code.
+% pathOutStatus : Path to save the status. 
 %
 % Data of the elements specified in GenerateElements().
 %
@@ -37,7 +37,7 @@
 % cloud : .las. The cloud is saved segmented.
 
 % 
-% status : cell array. Execution times.
+% status : .json with the status of the process.
 % -------------------------------------------------------------------------
 % Daniel Lamas Novoa.
 % Enxeñaría dos materiais, mecánica aplicada e construción.
@@ -78,8 +78,8 @@ model = GenerateElements([pathModels,symb]);
 %% Analyzing all the clouds
 grid = 0.1;
 parfor i = 1:numel(list)
+    status = [];
     try
-        status = [];
         status.total = tic;
 
         % Generation pointCloud_
@@ -114,6 +114,10 @@ parfor i = 1:numel(list)
         status = getReport(ME);
     end
     
-    SaveParallel(strcat(pathOutStatus, symb, erase(list(i).name, '.las'), '_status.mat'), status);
+    fid = fopen(strcat(pathOutStatus, symb, erase(list(i).name, '.las'), '_status.json'), 'w');
+    fprintf(fid, jsonencode(status,'PrettyPrint',true));
+    fclose(fid);
+        
+%     SaveParallel(strcat(pathOutStatus, symb, erase(list(i).name, '.las'), '_status.mat'), status);
 
 end
