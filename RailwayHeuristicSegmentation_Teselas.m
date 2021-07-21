@@ -91,6 +91,7 @@ model = GenerateElements([pathModels,symb]);
 
 %% Reading trajectory files
 list_traj = dir(strcat(pathInTrajectory, symb, '*.csv')); % list with all the trajectories
+list_relation = dir(strcat(pathCloudsOfTrajectories, symb, '*.csv')); % list with all the matrix clouds - trajectory points
 list_clouds = dir(strcat(pathInCloud, symb, '*.laz')); % list with all the clouds
 
 %% All the trajectories. It is created in this way to use a trajectory object correctly
@@ -107,7 +108,7 @@ end
 % .laz that have been analysed in other sections are not analaysed now.
 for i = 1:numel(list_traj)
     %% Clouds of this trajectory
-    matrix_clouds = readtable(strcat(pathCloudsOfTrajectories, symb, list_traj(i).name));
+    matrix_clouds = readtable(strcat(pathCloudsOfTrajectories, symb, list_relation(i).name));
     matrix_clouds = matrix_clouds{:,:};
     clouds_traj = false(size(matrix_clouds));
     clouds_traj(matrix_clouds == "True") = true;
