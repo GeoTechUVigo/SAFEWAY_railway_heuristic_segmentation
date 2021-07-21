@@ -108,10 +108,8 @@ end
 % .laz that have been analysed in other sections are not analaysed now.
 for i = 1:numel(list_traj)
     %% Clouds of this trajectory
-    matrix_clouds = readtable(strcat(pathCloudsOfTrajectories, symb, list_relation(i).name));
-    matrix_clouds = matrix_clouds{:,:};
-    clouds_traj = false(size(matrix_clouds));
-    clouds_traj(matrix_clouds == "True") = true;
+    clouds_traj = readtable(strcat(pathCloudsOfTrajectories, symb, list_relation(i).name));
+    clouds_traj = logical(clouds_traj{:,:});
     
     %% Create a matrix where to know which .laz have been analysed
     if i == 1
