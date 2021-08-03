@@ -1,11 +1,9 @@
 # SAFEWAY_railway_heuristic_segmentation y SAFEWAY_railway_heuristic_segmentation_Teselas
-porjecto SAFEWAY2020
 
-Autor: Daniel Lamas Novoa https://github.com/Daniel22L
-
-Publicación: https://www.mdpi.com/2072-4292/13/12/2332
-
-Más información en la caprpeta Documents
+* Proyecto: [SAFEWAY2020](https://github.com/orgs/GeoTechUVigo/projects/1).
+* Autor: Daniel Lamas Novoa [Daniel22L](https://github.com/Daniel22L).
+* Publicación: [Automatic Point Cloud Semantic Segmentation of Complex Railway Environments](https://doi.org/10.3390/rs13122332).
+* Notas: más información en la caprpeta Documents.
 
 # RESUMEN
 
