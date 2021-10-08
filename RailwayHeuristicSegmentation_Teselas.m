@@ -77,10 +77,10 @@ grid = 0.1;
 
 %% Paths
 pathInTrajectory = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\trajectories";
-pathInCloud      = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\reduced_laz_files";
-pathOut          = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\output";
-pathOutStatus    = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\status";
-pathCloudsOfTrajectories = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\in_range";
+pathInCloud      = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\2020WesternData_15m-30m_LAZ_OSTN15";
+pathOut          = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\output_2020";
+pathOutStatus    = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\status_2020";
+pathCloudsOfTrajectories = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\clouds\UK_2020_cloud2traj";
 output_temp = "C:\Users\xeotecnoloxias\Desktop\Dani\dani_uk\SAFEWAY_railway_heuristic_segmentation\archivos_temp";
 
 %% Data to extraction
@@ -90,15 +90,15 @@ pathModels = [pwd, '\Models'];
 model = GenerateElements([pathModels,symb]);
 
 %% Reading trajectory files
-list_traj = dir(strcat(pathInTrajectory, symb, '*.csv')); % list with all the trajectories
-list_relation = dir(strcat(pathCloudsOfTrajectories, symb, '*.csv')); % list with all the matrix clouds - trajectory points
-list_clouds = dir(strcat(pathInCloud, symb, '*.laz')); % list with all the clouds
+list_traj = sort(string(cat(1,dir(strcat(pathInTrajectory, symb, '*.csv')).name))); % list with all the trajectories
+list_relation = sort(string(cat(1,dir(strcat(pathCloudsOfTrajectories, symb, '*.csv')).name))); % list with all the matrix clouds - trajectory points
+list_clouds = sort(string(cat(1,dir(strcat(pathInCloud, symb, '*.laz')).name))); % list with all the clouds
 
 %% All the trajectories. It is created in this way to use a trajectory object correctly
 traj = cell(numel(list_traj),1);
 for i = 1:numel(list_traj)
     traj{i} = trajectory(0,0,0);
-    points = readtable(strcat(pathInTrajectory, symb, list_traj(i).name));
+    points = readtable(strcat(pathInTrajectory, symb, list_traj(i)));
     traj{i}.points = points{:,:};
     traj{i}.points(:,3) = traj{i}.points(:,3) + 1; % this traj is on the floor
     traj{i}.timeStamp = zeros(length(traj{i}.points),1);
@@ -108,7 +108,7 @@ end
 % .laz that have been analysed in other sections are not analaysed now.
 for i = 1:numel(list_traj)
     %% Clouds of this trajectory
-    clouds_traj = readtable(strcat(pathCloudsOfTrajectories, symb, list_relation(i).name));
+    clouds_traj = readtable(strcat(pathCloudsOfTrajectories, symb, list_relation(i)), 'ReadVariableNames', true);
     clouds_traj = logical(clouds_traj{:,:});
     
     %% Create a matrix where to know which .laz have been analysed
@@ -126,7 +126,7 @@ for i = 1:numel(list_traj)
     sections_traj = Sectioning_trajectory(traj{i});
     
     %% Analyse the cloud of each trajectory section
-    parfor j = 1:length(sections_traj)
+    for j = 1:length(sections_traj)
         process = [];
         status = [];
         
@@ -157,7 +157,7 @@ for i = 1:numel(list_traj)
             % Merge all the points clouds using lastools, save it and load it
             input = string();
             for k = 1:length(list_clouds_traj)
-                input = input + pathInCloud + symb + list_clouds_traj(k).name + " ";
+                input = input + pathInCloud + symb + list_clouds_traj(k) + " ";
             end
             file_temp = strcat(output_temp, symb,string(i), "_", string(j), ".las");
             process = "system call";
