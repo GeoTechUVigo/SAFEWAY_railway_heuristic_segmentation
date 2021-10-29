@@ -107,17 +107,62 @@ parfor i = 1:numel(list)
         % Saving
         status.save = tic;
         cloud = []; % cloud .las is read in ModifySaveLas, so cloud is delete to free up memory. clear cloud is not applicable in parfor loop
+        file_out =  strcat(pathOut, symb, list(i).name);
         ModifySaveLas(strcat(pathInCloud, symb, list(i).name),components, 'pathOut', strcat(pathOut, symb, list(i).name)); 
         status.save = toc(status.save);
+        
+        %% saving the info of the cloud t oconstruct the container out of the parfor
+        info{i} = RecordInformation(components, status);
+        name{i} = char(list(i).name);
             
-    catch ME
-        status = getReport(ME);
+    catch ME        
+        %% Catch the error
+
+        % elements to construct the container out of the parfor        
+        info{i} = RecordError(ME); 
+        name{i} = char(list(i).name);
+            
     end
-    
-    fid = fopen(strcat(pathOutStatus, symb, erase(list(i).name, '.las'), '_status.json'), 'w');
-    fprintf(fid, jsonencode(status,'PrettyPrint',true));
-    fclose(fid);
         
 %     SaveParallel(strcat(pathOutStatus, symb, erase(list(i).name, '.las'), '_status.mat'), status);
 
 end
+
+%% Save information
+info = containers.Map(name, info);
+
+% Adding information
+documentation = containers.Map();
+
+documentation("author") = "Daniel Lamas Novoa. Grupo de xeotecnolox\u00eda aplicada. Universidade de Vigo.";
+documentation("date") = date;
+documentation("papers") = "https://doi.org/10.3390/rs13122332";
+documentation("project") = "SAFEWAY2020";
+documentation("repository") = "https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation";
+
+segmentation = containers.Map();
+segmentation("Record.point_source_id") = "A unique number to all the elements from the same track";
+segmentation("Record.user_data") = "A unique number at each element";
+
+record_classification = containers.Map();
+record_classification("rails") = 1;
+record_classification("catenary wires") = 2;
+record_classification("contact wires") = 3;
+record_classification("droppers") = 4;
+record_classification("other wires") = 5;
+record_classification("masts") = 6;
+record_classification("signs") = 7;
+record_classification("traffic lights") = 8;
+record_classification("marks") = 9;
+record_classification("signs in masts") = 10;
+record_classification("lights") = 11;
+
+segmentation("Record.classification") = record_classification;
+
+documentation("segmentation") = segmentation;
+
+info("documentation") = documentation;
+
+fid = fopen(strcat(pathOutStatus, symb, 'status.json'), 'w');
+fprintf(fid, jsonencode(info,'PrettyPrint',true));
+fclose(fid);

@@ -2,7 +2,7 @@
 % It is need a trajectory in .csv and a cloud in tiles. Besides, it is need
 % a matrix that shows which tiles are close to each trajectory point.
 %
-% This script needs LAStools.
+% This script needs LAStools. https://rapidlasso.com/lastools/
 %
 % The trajectory is sectioned. For each section, the tiles of these
 % trajectory points are loaded. These tiles make a unique cloud. This cloud
@@ -106,6 +106,7 @@ end
 
 %% Sectioning each trajectory, loading the clouds of each section, removing lateral points using all the trajectories and segmenting it.
 % .laz that have been analysed in other sections are not analaysed now.
+
 for i = 1:numel(list_traj)
     %% Clouds of this trajectory
     clouds_traj = readtable(strcat(pathCloudsOfTrajectories, symb, list_relation(i)), 'ReadVariableNames', true);
@@ -126,7 +127,8 @@ for i = 1:numel(list_traj)
     sections_traj = Sectioning_trajectory(traj{i});
     
     %% Analyse the cloud of each trajectory section
-    for j = 1:length(sections_traj)
+    parfor j = 1:length(sections_traj)
+        
         process = [];
         status = [];
         
@@ -223,23 +225,67 @@ for i = 1:numel(list_traj)
             ModifySaveLas(file_out, components, 'pathOut', file_out);
             % Save as .laz
             process = "Save .laz segmented";
-            system(strcat("las2las -i ", file_out, " -o ", erase(file_out, '.las'), ".laz"));
+            file_out_laz = replace(file_out, ".las", ".laz");
+            cloud_name = erase(file_out, pathOut + symb);
+            
+            system(strcat("las2las -i ", file_out, " -o ", file_out_laz));
             delete(file_out);
             status.save = toc(status.save);
 
             status.total = toc(status.total);
             
+            %% saving the info of the cloud t oconstruct the container out of the parfor
+            info{j} = RecordInformation(components, status);
+            name{j} = char(cloud_name);
+            
         catch ME
-            status = [];
-            status.error = getReport(ME);
-            status.process = process;
+            %% Catch the error
+            
+            % Elements to construct the container out of the parfor
+            info{j} = RecordError(ME); 
+            name{j} = char(string(i) + "_" + string(j) + ".laz");
         end
-          
-        %% Save status
-        fid = fopen(strcat(pathOutStatus, symb, string(i), "_", string(j), '_status.json'), 'w');
-        fprintf(fid, jsonencode(status,'PrettyPrint',true));
-        fclose(fid);
-        
+    
 %         SaveParallel(strcat(pathOutStatus, symb, string(i), "_", string(j), '_status.mat'), status);
     end
+    
+    %% Save information    
+    info = containers.Map(name, info);
+
+    % Adding information
+    documentation = containers.Map();
+
+    documentation("author") = "Daniel Lamas Novoa. Grupo de xeotecnolox\u00eda aplicada. Universidade de Vigo.";
+    documentation("date") = date;
+    documentation("papers") = "https://doi.org/10.3390/rs13122332";
+    documentation("project") = "SAFEWAY2020";
+    documentation("repository") = "https://github.com/GeoTechUVigo/SAFEWAY_railway_heuristic_segmentation";
+
+    segmentation = containers.Map();
+    segmentation("Record.point_source_id") = "A unique number to all the elements from the same track";
+    segmentation("Record.user_data") = "A unique number at each element";
+
+    record_classification = containers.Map();
+    record_classification("rails") = 1;
+    record_classification("catenary wires") = 2;
+    record_classification("contact wires") = 3;
+    record_classification("droppers") = 4;
+    record_classification("other wires") = 5;
+    record_classification("masts") = 6;
+    record_classification("signs") = 7;
+    record_classification("traffic lights") = 8;
+    record_classification("marks") = 9;
+    record_classification("signs in masts") = 10;
+    record_classification("lights") = 11;
+
+    segmentation("Record.classification") = record_classification;
+
+    documentation("segmentation") = segmentation;
+
+    info("documentation") = documentation;
+
+    fid = fopen(strcat(pathOutStatus, symb, erase(list_traj(i),".csv"),'_status.json'), 'w');
+    fprintf(fid, jsonencode(info,'PrettyPrint',true));
+    fclose(fid);
+        
 end
